@@ -300,7 +300,6 @@
     try {
       const encoder = new TextEncoder();
       await characteristic.writeValue(encoder.encode(weight + '\n'));
-      addMessage('Sent weight: ' + weight + ' lbs');
       input.value = '';
     } catch (err) {
       addMessage('Send error: ' + err.message);
