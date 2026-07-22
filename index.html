@@ -5,325 +5,1261 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RepTracker</title>
   <style>
+    :root {
+      --bg: #000000;
+      --surface: #1c1c1e;
+      --surface2: #2c2c2e;
+      --surface3: #3a3a3c;
+      --border: #38383a;
+      --text: #ffffff;
+      --text-secondary: #8e8e93;
+      --text-tertiary: #636366;
+      --accent: #ff375f;
+      --accent-soft: rgba(255, 55, 95, 0.15);
+      --green: #30d158;
+      --green-soft: rgba(48, 209, 88, 0.15);
+      --blue: #0a84ff;
+      --blue-soft: rgba(10, 132, 255, 0.15);
+      --orange: #ff9f0a;
+      --orange-soft: rgba(255, 159, 10, 0.15);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #1a1a2e;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
       min-height: 100vh;
-      padding: 24px 20px;
+      padding-bottom: 100px;
     }
 
-    header {
+    /* Header */
+    .header {
+      padding: 56px 20px 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 4px;
     }
 
-    h1 {
-      font-size: 28px;
+    .app-title {
+      font-size: 34px;
       font-weight: 700;
+      letter-spacing: -0.5px;
     }
 
-    .status {
+    .status-pill {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 14px;
+      gap: 6px;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s;
     }
 
-    .dot {
-      width: 12px;
-      height: 12px;
+    .status-pill.connected {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #F44336;
+      background: var(--text-tertiary);
       transition: background 0.3s;
     }
 
-    .dot.connected { background: #4CAF50; }
+    .status-dot.connected {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
 
-    .message-box {
-      background: #16213e;
-      border-radius: 12px;
-      padding: 16px;
-      height: 380px;
-      overflow-y: auto;
-      margin-bottom: 16px;
+    /* Tab Bar */
+    .tab-bar {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 3px;
+      margin: 12px 20px 0;
     }
 
-    .message {
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--surface3);
+      color: var(--text);
+    }
+
+    /* Pages */
+    .page { display: none; padding: 20px; }
+    .page.active { display: block; }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-row .card {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    /* Rep Counter */
+    .rep-display {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rep-display::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+
+    .rep-number {
+      font-size: 96px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -4px;
+      position: relative;
+    }
+
+    .rep-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .last-rep-time {
       font-size: 15px;
-      color: #e0e0e0;
-      font-family: monospace;
-      line-height: 1.5;
+      color: var(--text-secondary);
+      margin-top: 8px;
     }
 
-    .message.highlight {
-      color: #4fc3f7;
-      font-weight: bold;
+    .last-rep-time span {
+      color: var(--blue);
+      font-weight: 600;
     }
 
-    .message.success {
-      color: #81c784;
-      font-weight: bold;
+    /* Exercise Selector */
+    .exercise-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
     }
 
-    .message.warning {
-      color: #ffb74d;
-      font-weight: bold;
+    .exercise-scroll::-webkit-scrollbar { display: none; }
+
+    .exercise-chip {
+      flex-shrink: 0;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
 
-    .input-row {
+    .exercise-chip.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Weight Input */
+    .weight-row {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
     }
 
-    input {
+    .weight-input {
       flex: 1;
-      background: #16213e;
-      color: #ffffff;
-      border: 1px solid #0f3460;
-      border-radius: 10px;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
       padding: 14px 16px;
-      font-size: 16px;
+      font-size: 17px;
       outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
     }
 
-    input::placeholder { color: #888; }
-
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 14px 20px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
+    .weight-input:focus {
+      border-color: var(--accent);
     }
 
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .weight-input::placeholder { color: var(--text-tertiary); }
 
     .btn-send {
-      background: #0f3460;
-      color: #ffffff;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-family: inherit;
     }
 
+    .btn-send:active { opacity: 0.7; }
+
+    /* Connect Button */
     .btn-connect {
       width: 100%;
-      background: #e94560;
-      color: #ffffff;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
       padding: 18px;
-      font-size: 18px;
-      border-radius: 12px;
-      margin-bottom: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-bottom: 10px;
+      font-family: inherit;
+      letter-spacing: -0.3px;
     }
+
+    .btn-connect:active { opacity: 0.8; }
 
     .btn-disconnect {
       width: 100%;
-      background: #444;
-      color: #ffffff;
+      background: var(--surface2);
+      color: var(--text-secondary);
+      border: none;
+      border-radius: var(--radius-lg);
       padding: 18px;
-      font-size: 18px;
-      border-radius: 12px;
-      margin-bottom: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-family: inherit;
     }
 
     .btn-clear {
       width: 100%;
-      background: #1f3a5f;
-      color: #aaaaaa;
+      background: transparent;
+      color: var(--text-tertiary);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
       padding: 12px;
       font-size: 14px;
-      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
     }
 
-    .rep-counter {
-      background: #16213e;
-      border-radius: 12px;
+    /* Message Feed */
+    .message-feed {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 16px;
-      text-align: center;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    .rep-number {
-      font-size: 72px;
-      font-weight: 700;
-      color: #e94560;
-      line-height: 1;
-    }
+    .message-feed::-webkit-scrollbar { width: 3px; }
+    .message-feed::-webkit-scrollbar-track { background: transparent; }
+    .message-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    .rep-label {
+    .msg {
       font-size: 14px;
-      color: #888;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-family: 'SF Mono', 'Menlo', monospace;
+    }
+
+    .msg.rep { color: var(--blue); font-weight: 600; }
+    .msg.success { color: var(--green); font-weight: 600; }
+    .msg.warning { color: var(--orange); font-weight: 600; }
+    .msg.highlight { color: var(--text); font-weight: 600; }
+    .msg.divider { color: var(--border); }
+
+    /* Stats Cards */
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .stat-accent { color: var(--accent); }
+    .stat-green { color: var(--green); }
+    .stat-blue { color: var(--blue); }
+    .stat-orange { color: var(--orange); }
+
+    /* Monthly Calendar */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .cal-day-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      padding: 4px 0;
+      text-transform: uppercase;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: default;
+      transition: all 0.2s;
+    }
+
+    .cal-day.empty { color: transparent; }
+
+    .cal-day.worked-out {
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+    }
+
+    .cal-day.today {
+      border: 1.5px solid var(--text-secondary);
+      color: var(--text);
+    }
+
+    .cal-day.today.worked-out {
+      border-color: var(--accent);
+    }
+
+    /* History Chart */
+    .chart-container {
+      height: 160px;
+      position: relative;
+      margin-top: 8px;
+    }
+
+    canvas#historyChart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* History List */
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 14px;
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .history-info { flex: 1; }
+
+    .history-exercise {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .history-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .history-weight {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .history-weight-unit {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .empty-text {
+      font-size: 15px;
+    }
+
+    /* Month nav */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .month-label {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .month-btn {
+      background: var(--surface2);
+      border: none;
+      color: var(--text-secondary);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Recommendation Banner */
+    .recommendation-banner {
+      background: var(--green-soft);
+      border: 1.5px solid var(--green);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .recommendation-banner.show { display: block; }
+
+    .rec-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .rec-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .rec-detail {
+      font-size: 13px;
+      color: var(--text-secondary);
       margin-top: 4px;
     }
 
-    .hidden { display: none; }
+    /* Filter chips for history */
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+
+    .filter-scroll::-webkit-scrollbar { display: none; }
+
+    .filter-chip {
+      flex-shrink: 0;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-chip.active {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Velocity loss bar */
+    .vl-bar-container {
+      margin-top: 8px;
+    }
+
+    .vl-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .vl-bar-track {
+      height: 6px;
+      background: var(--surface3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .vl-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+      transition: width 0.5s ease;
+    }
+
+    .vl-bar-fill.moderate { background: var(--orange); }
+    .vl-bar-fill.high { background: var(--accent); }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>RepTracker</h1>
-    <div class="status">
-      <div class="dot" id="statusDot"></div>
-      <span id="statusText">Disconnected</span>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">RepTracker</div>
+      <div class="status-pill" id="statusPill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Disconnected</span>
+      </div>
     </div>
-  </header>
-
-  <!-- Rep Counter -->
-  <div class="rep-counter">
-    <div class="rep-number" id="repCount">0</div>
-    <div class="rep-label">REPS</div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="showTab('workout')">Workout</div>
+      <div class="tab" onclick="showTab('history')">History</div>
+      <div class="tab" onclick="showTab('calendar')">Calendar</div>
+    </div>
   </div>
 
-  <!-- Message Box -->
-  <div class="message-box" id="messageBox"></div>
+  <!-- WORKOUT TAB -->
+  <div class="page active" id="tab-workout">
 
-  <!-- Weight Input (hidden until connected) -->
-  <div class="input-row hidden" id="inputRow">
-    <input
-      type="text"
-      id="weightInput"
-      placeholder="Enter weight (lbs)"
-    />
-    <button class="btn-send" onclick="sendWeight()">Send</button>
+    <!-- Exercise Selector -->
+    <div style="margin-bottom: 12px; margin-top: 8px;">
+      <div class="section-header">Exercise</div>
+      <div class="exercise-scroll" id="exerciseScroll">
+        <div class="exercise-chip active" onclick="selectExercise(this, 'Bicep Curl', '💪')">💪 Bicep Curl</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Chest Press', '🏋️')">🏋️ Chest Press</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Pull-Up', '⬆️')">⬆️ Pull-Up</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Shoulder Press', '🔝')">🔝 Shoulder Press</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Tricep Extension', '💪')">💪 Tricep Extension</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Lat Pulldown', '⬇️')">⬇️ Lat Pulldown</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Bent Over Row', '🚣')">🚣 Bent Over Row</div>
+        <div class="exercise-chip" onclick="selectExercise(this, 'Squat', '🦵')">🦵 Squat</div>
+      </div>
+    </div>
+
+    <!-- Rep Display -->
+    <div class="rep-display">
+      <div class="rep-number" id="repCount">0</div>
+      <div class="rep-label">Reps</div>
+      <div class="last-rep-time" id="lastRepTime" style="display:none">
+        Last rep: <span id="lastRepVal">—</span>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="card-row">
+      <div class="card">
+        <div class="stat-value stat-blue" id="statWeight">—</div>
+        <div class="stat-label">Weight (lbs)</div>
+      </div>
+      <div class="card">
+        <div class="stat-value stat-orange" id="statVL">—</div>
+        <div class="stat-label">Velocity Loss</div>
+      </div>
+    </div>
+
+    <!-- Recommendation Banner -->
+    <div class="recommendation-banner" id="recBanner">
+      <div class="rec-title">Recommendation</div>
+      <div class="rec-text" id="recText">—</div>
+      <div class="rec-detail" id="recDetail">—</div>
+    </div>
+
+    <!-- Weight Input -->
+    <div class="weight-row" id="weightRow">
+      <input
+        type="text"
+        class="weight-input"
+        id="weightInput"
+        placeholder="Enter weight or N, S, D"
+      />
+      <button class="btn-send" onclick="sendWeight()">Send</button>
+    </div>
+
+    <!-- Connect Button -->
+    <button class="btn-connect" id="connectBtn" onclick="connect()">
+      Connect to RepTracker
+    </button>
+
+    <!-- Message Feed -->
+    <div class="section-header" style="margin-top:8px">Live Feed</div>
+    <div class="message-feed" id="messageFeed"></div>
+    <button class="btn-clear" onclick="clearMessages()">Clear Feed</button>
+
   </div>
 
-  <!-- Buttons -->
-  <button class="btn-connect" id="connectBtn" onclick="connect()">
-    Connect to RepTracker
-  </button>
+  <!-- HISTORY TAB -->
+  <div class="page" id="tab-history">
+    <div class="section-header" style="margin-top: 8px;">Workout History</div>
 
-  <button class="btn-clear" onclick="clearMessages()">Clear Messages</button>
+    <!-- Filter by exercise -->
+    <div class="filter-scroll" id="filterScroll">
+      <div class="filter-chip active" onclick="filterHistory(this, 'All')">All</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Bicep Curl')">Bicep Curl</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Chest Press')">Chest Press</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Pull-Up')">Pull-Up</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Shoulder Press')">Shoulder Press</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Tricep Extension')">Tricep Extension</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Lat Pulldown')">Lat Pulldown</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Bent Over Row')">Bent Over Row</div>
+      <div class="filter-chip" onclick="filterHistory(this, 'Squat')">Squat</div>
+    </div>
+
+    <!-- Weight Progress Chart -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="section-header" style="font-size:15px; margin-bottom: 4px;">Weight Progress</div>
+      <div class="section-sub" id="chartSubtitle">All exercises</div>
+      <div class="chart-container">
+        <canvas id="historyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- History List -->
+    <div id="historyList">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">No workouts yet.<br>Complete a set to see your history.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CALENDAR TAB -->
+  <div class="page" id="tab-calendar">
+    <div class="section-header" style="margin-top: 8px;">Monthly Activity</div>
+    <div class="section-sub">Days you completed at least one set</div>
+
+    <div class="card">
+      <div class="month-nav">
+        <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+        <div class="month-label" id="monthLabel"></div>
+        <button class="month-btn" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Monthly Stats -->
+    <div class="card-row">
+      <div class="card">
+        <div class="stat-value stat-accent" id="monthWorkouts">0</div>
+        <div class="stat-label">Workouts</div>
+      </div>
+      <div class="card">
+        <div class="stat-value stat-green" id="monthSets">0</div>
+        <div class="stat-label">Total Sets</div>
+      </div>
+      <div class="card">
+        <div class="stat-value stat-blue" id="monthStreak">0</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+
+  </div>
 
 <script>
+  // ── BLE Config ──────────────────────────────────────────────
   const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-  const CHAR_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+  const CHAR_UUID    = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
   let device = null;
   let characteristic = null;
   let repCount = 0;
+  let currentExercise = 'Bicep Curl';
+  let currentExerciseIcon = '💪';
+  let currentWeight = null;
+  let lastRec = '';
+  let currentMonthOffset = 0;
+  let activeHistoryFilter = 'All';
 
-  function addMessage(text, type = '') {
-    const box = document.getElementById('messageBox');
-    const msg = document.createElement('div');
-    msg.className = 'message ' + type;
-
-    // Auto detect message type for color coding
-    if (text.includes('Rep #')) msg.className = 'message highlight';
-    else if (text.includes('RECOMMENDATION') || text.includes('keep weight') || text.includes('increase') || text.includes('decrease')) msg.className = 'message success';
-    else if (text.includes('fatigue') || text.includes('Too')) msg.className = 'message warning';
-
-    msg.textContent = text;
-    box.appendChild(msg);
-    box.scrollTop = box.scrollHeight;
-
-    // Update rep counter
-    const repMatch = text.match(/Rep #(\d+)/);
-    if (repMatch) {
-      repCount = parseInt(repMatch[1]);
-      document.getElementById('repCount').textContent = repCount;
-    }
-
-    // Reset counter on new set
-    if (text.includes('Weight set to') || text.includes('Keeping weight')) {
-      repCount = 0;
-      document.getElementById('repCount').textContent = '0';
-    }
+  // ── Local Storage Helpers ────────────────────────────────────
+  function getHistory() {
+    return JSON.parse(localStorage.getItem('rt_history') || '[]');
   }
 
-  function setConnected(isConnected) {
-    document.getElementById('statusDot').className = 'dot' + (isConnected ? ' connected' : '');
-    document.getElementById('statusText').textContent = isConnected ? 'Connected' : 'Disconnected';
-    document.getElementById('connectBtn').className = isConnected ? 'btn-disconnect' : 'btn-connect';
-    document.getElementById('connectBtn').textContent = isConnected ? 'Disconnect' : 'Connect to RepTracker';
-    document.getElementById('connectBtn').onclick = isConnected ? disconnect : connect;
-    document.getElementById('inputRow').className = isConnected ? 'input-row' : 'input-row hidden';
+  function saveSet(entry) {
+    const history = getHistory();
+    history.unshift(entry);
+    localStorage.setItem('rt_history', JSON.stringify(history));
+    getWorkoutDays()[entry.date] = true;
+    saveWorkoutDays(getWorkoutDays());
   }
 
+  function getWorkoutDays() {
+    return JSON.parse(localStorage.getItem('rt_workout_days') || '{}');
+  }
+
+  function saveWorkoutDays(days) {
+    localStorage.setItem('rt_workout_days', JSON.stringify(days));
+  }
+
+  // ── Tab Navigation ───────────────────────────────────────────
+  function showTab(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'history') renderHistory();
+    if (name === 'calendar') renderCalendar();
+  }
+
+  // ── Exercise Selector ────────────────────────────────────────
+  function selectExercise(el, name, icon) {
+    document.querySelectorAll('.exercise-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentExercise = name;
+    currentExerciseIcon = icon;
+  }
+
+  // ── BLE Connection ───────────────────────────────────────────
   async function connect() {
+    if (device && device.gatt.connected) {
+      disconnect();
+      return;
+    }
     try {
-      addMessage('Scanning for RepTracker...');
+      addMessage('Scanning for RepTracker...', '');
       device = await navigator.bluetooth.requestDevice({
         filters: [{ name: 'RepTracker' }],
         optionalServices: [SERVICE_UUID]
       });
-
-      addMessage('Found RepTracker! Connecting...');
+      addMessage('Found RepTracker! Connecting...', '');
       const server = await device.gatt.connect();
       const service = await server.getPrimaryService(SERVICE_UUID);
       characteristic = await service.getCharacteristic(CHAR_UUID);
-
       await characteristic.startNotifications();
       characteristic.addEventListener('characteristicvaluechanged', handleData);
-
-      device.addEventListener('gattserverdisconnected', () => {
-        addMessage('Disconnected from RepTracker');
-        setConnected(false);
-      });
-
+      device.addEventListener('gattserverdisconnected', onDisconnected);
       setConnected(true);
-      addMessage('Connected to RepTracker!');
-
+      addMessage('Connected to RepTracker!', 'success');
     } catch (err) {
-      addMessage('Error: ' + err.message);
+      addMessage(err.message ? 'Error: ' + err.message : 'Connection cancelled', 'warning');
     }
   }
 
-  function handleData(event) {
-    const value = event.target.value;
-    const text = new TextDecoder().decode(value);
-    addMessage(text.trim());
-  }
-
-  async function sendWeight() {
-    const input = document.getElementById('weightInput');
-    const weight = input.value.trim();
-
-    if (!weight) {
-      addMessage('Please enter a weight first');
-      return;
-    }
-
-    if (!characteristic) {
-      addMessage('Not connected to RepTracker');
-      return;
-    }
-
-    try {
-      const encoder = new TextEncoder();
-      await characteristic.writeValue(encoder.encode(weight + '\n'));
-      input.value = '';
-    } catch (err) {
-      addMessage('Send error: ' + err.message);
-    }
+  function onDisconnected() {
+    setConnected(false);
+    addMessage('Disconnected from RepTracker', 'warning');
   }
 
   async function disconnect() {
-    if (device && device.gatt.connected) {
-      device.gatt.disconnect();
-    }
+    if (device && device.gatt.connected) device.gatt.disconnect();
     setConnected(false);
   }
 
-  function clearMessages() {
-    document.getElementById('messageBox').innerHTML = '';
-    repCount = 0;
-    document.getElementById('repCount').textContent = '0';
+  function setConnected(isConnected) {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    const pill = document.getElementById('statusPill');
+    const btn = document.getElementById('connectBtn');
+    const row = document.getElementById('weightRow');
+
+    dot.className = 'status-dot' + (isConnected ? ' connected' : '');
+    text.textContent = isConnected ? 'Connected' : 'Disconnected';
+    pill.className = 'status-pill' + (isConnected ? ' connected' : '');
+    btn.className = isConnected ? 'btn-disconnect' : 'btn-connect';
+    btn.textContent = isConnected ? 'Disconnect' : 'Connect to RepTracker';
+    row.className = isConnected ? 'weight-row' : 'weight-row hidden';
   }
 
-  // Allow pressing Enter to send weight
-  document.getElementById('weightInput').addEventListener('keypress', (e) => {
+  // ── BLE Data Handler ─────────────────────────────────────────
+  let pendingSetData = {};
+
+  function handleData(event) {
+    const text = new TextDecoder().decode(event.target.value).trim();
+    if (!text) return;
+
+    // Parse rep count
+    const repMatch = text.match(/Rep #(\d+)/);
+    if (repMatch) {
+      repCount = parseInt(repMatch[1]);
+      document.getElementById('repCount').textContent = repCount;
+
+      const durMatch = text.match(/\|\s*([\d.]+)s/);
+      if (durMatch) {
+        document.getElementById('lastRepTime').style.display = 'block';
+        document.getElementById('lastRepVal').textContent = durMatch[1] + 's';
+      }
+    }
+
+    // Parse velocity loss
+    const vlMatch = text.match(/Velocity loss:\s*([\d.]+)%/);
+    if (vlMatch) {
+      const vl = parseFloat(vlMatch[1]);
+      document.getElementById('statVL').textContent = vl.toFixed(1) + '%';
+      pendingSetData.velocityLoss = vl;
+    }
+
+    // Parse reps completed
+    const repsMatch = text.match(/^Reps:\s*(\d+)$/);
+    if (repsMatch) pendingSetData.reps = parseInt(repsMatch[1]);
+
+    // Parse weight
+    const wtMatch = text.match(/Weight set to ([\d.]+) lbs/);
+    if (wtMatch) {
+      currentWeight = parseFloat(wtMatch[1]);
+      document.getElementById('statWeight').textContent = currentWeight;
+    }
+
+    // Parse recommendation
+    const recKeywords = ['decrease', 'increase', 'keep weight', 'good effort', 'good speed', 'high fatigue', 'low fatigue'];
+    if (recKeywords.some(k => text.toLowerCase().includes(k))) {
+      lastRec = text;
+    }
+
+    // Parse target weight
+    const targetMatch = text.match(/Target:\s*([\d.]+) lbs/);
+    if (targetMatch && lastRec) {
+      const targetWt = parseFloat(targetMatch[1]);
+      showRecommendation(lastRec, targetWt);
+      saveSetToHistory(pendingSetData.reps, targetWt, pendingSetData.velocityLoss);
+      pendingSetData = {};
+    }
+
+    // Reset rep counter on new set
+    if (text.includes('Ready! Start your set') || text.includes('Ready for next set')) {
+      repCount = 0;
+      document.getElementById('repCount').textContent = '0';
+      document.getElementById('lastRepTime').style.display = 'none';
+      document.getElementById('statVL').textContent = '—';
+      document.getElementById('recBanner').classList.remove('show');
+    }
+
+    addMessage(text);
+  }
+
+  function showRecommendation(rec, targetWeight) {
+    const banner = document.getElementById('recBanner');
+    const recText = document.getElementById('recText');
+    const recDetail = document.getElementById('recDetail');
+
+    banner.classList.add('show');
+
+    if (rec.toLowerCase().includes('decrease')) {
+      banner.style.background = 'rgba(255, 55, 95, 0.15)';
+      banner.style.borderColor = 'var(--accent)';
+      document.querySelector('.rec-title').style.color = 'var(--accent)';
+    } else if (rec.toLowerCase().includes('increase')) {
+      banner.style.background = 'var(--blue-soft)';
+      banner.style.borderColor = 'var(--blue)';
+      document.querySelector('.rec-title').style.color = 'var(--blue)';
+    } else {
+      banner.style.background = 'var(--green-soft)';
+      banner.style.borderColor = 'var(--green)';
+      document.querySelector('.rec-title').style.color = 'var(--green)';
+    }
+
+    recText.textContent = rec;
+    recDetail.textContent = 'Next set: ' + targetWeight + ' lbs · Target 6–10 reps';
+  }
+
+  function saveSetToHistory(reps, weight, vl) {
+    const today = new Date().toISOString().split('T')[0];
+    const entry = {
+      exercise: currentExercise,
+      icon: currentExerciseIcon,
+      weight: currentWeight,
+      reps: reps || repCount,
+      velocityLoss: vl || null,
+      recommendation: lastRec,
+      date: today,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: Date.now()
+    };
+    saveSet(entry);
+    markWorkoutDay(today);
+  }
+
+  function markWorkoutDay(dateStr) {
+    const days = getWorkoutDays();
+    days[dateStr] = (days[dateStr] || 0) + 1;
+    saveWorkoutDays(days);
+  }
+
+  // ── Send Weight ──────────────────────────────────────────────
+  async function sendWeight() {
+    const input = document.getElementById('weightInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (!characteristic) { addMessage('Not connected', 'warning'); return; }
+    try {
+      await characteristic.writeValue(new TextEncoder().encode(val + '\n'));
+      input.value = '';
+    } catch (err) {
+      addMessage('Send error: ' + err.message, 'warning');
+    }
+  }
+
+  // ── Message Feed ─────────────────────────────────────────────
+  function addMessage(text, type) {
+    const feed = document.getElementById('messageFeed');
+    const el = document.createElement('div');
+
+    let cls = 'msg';
+    if (type) {
+      cls += ' ' + type;
+    } else if (text.includes('Rep #')) {
+      cls += ' rep';
+    } else if (text.includes('RECOMMENDATION') || text.includes('keep weight') || text.includes('good effort') || text.includes('good speed')) {
+      cls += ' success';
+    } else if (text.includes('fatigue') || text.includes('Too') || text.includes('decrease') || text.includes('increase')) {
+      cls += ' warning';
+    } else if (text.includes('---')) {
+      cls += ' divider';
+    } else if (text.includes('SET COMPLETE') || text.includes('Connected')) {
+      cls += ' highlight';
+    }
+
+    el.className = cls;
+    el.textContent = text;
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function clearMessages() {
+    document.getElementById('messageFeed').innerHTML = '';
+  }
+
+  // ── History Tab ──────────────────────────────────────────────
+  function filterHistory(el, filter) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    activeHistoryFilter = filter;
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const history = getHistory();
+    const filtered = activeHistoryFilter === 'All'
+      ? history
+      : history.filter(h => h.exercise === activeHistoryFilter);
+
+    const list = document.getElementById('historyList');
+    const subtitle = document.getElementById('chartSubtitle');
+    subtitle.textContent = activeHistoryFilter === 'All' ? 'All exercises' : activeHistoryFilter;
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No workouts yet.<br>Complete a set to see your history.</div></div>`;
+      renderChart([]);
+      return;
+    }
+
+    list.innerHTML = filtered.map(h => `
+      <div class="history-item">
+        <div class="history-icon" style="background: var(--surface2)">${h.icon || '💪'}</div>
+        <div class="history-info">
+          <div class="history-exercise">${h.exercise}</div>
+          <div class="history-meta">${h.date} · ${h.time || ''} · ${h.reps || '—'} reps${h.velocityLoss != null ? ' · VL ' + h.velocityLoss.toFixed(1) + '%' : ''}</div>
+        </div>
+        <div>
+          <div class="history-weight">${h.weight || '—'}</div>
+          <div class="history-weight-unit">lbs</div>
+        </div>
+      </div>
+    `).join('');
+
+    renderChart(filtered);
+  }
+
+  function renderChart(data) {
+    const canvas = document.getElementById('historyChart');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (data.length < 2) {
+      ctx.fillStyle = '#636366';
+      ctx.font = '13px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Complete more sets to see progress', canvas.offsetWidth / 2, 80);
+      return;
+    }
+
+    const reversed = [...data].reverse();
+    const weights = reversed.map(d => d.weight || 0);
+    const labels = reversed.map(d => d.date.slice(5));
+
+    const W = canvas.offsetWidth || 300;
+    const H = canvas.offsetHeight || 160;
+    canvas.width = W;
+    canvas.height = H;
+
+    const pad = { top: 16, right: 16, bottom: 24, left: 32 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+
+    const minW = Math.min(...weights) - 5;
+    const maxW = Math.max(...weights) + 5;
+    const range = maxW - minW || 10;
+
+    const xStep = chartW / (weights.length - 1 || 1);
+
+    // Grid lines
+    ctx.strokeStyle = '#2c2c2e';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + (chartH / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(W - pad.right, y);
+      ctx.stroke();
+    }
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+    grad.addColorStop(0, 'rgba(255, 55, 95, 0.3)');
+    grad.addColorStop(1, 'rgba(255, 55, 95, 0.0)');
+
+    ctx.beginPath();
+    weights.forEach((w, i) => {
+      const x = pad.left + i * xStep;
+      const y = pad.top + chartH - ((w - minW) / range) * chartH;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    const lastX = pad.left + (weights.length - 1) * xStep;
+    ctx.lineTo(lastX, H - pad.bottom);
+    ctx.lineTo(pad.left, H - pad.bottom);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#ff375f';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    weights.forEach((w, i) => {
+      const x = pad.left + i * xStep;
+      const y = pad.top + chartH - ((w - minW) / range) * chartH;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Dots
+    weights.forEach((w, i) => {
+      const x = pad.left + i * xStep;
+      const y = pad.top + chartH - ((w - minW) / range) * chartH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff375f';
+      ctx.fill();
+    });
+
+    // X labels (show first and last only)
+    ctx.fillStyle = '#636366';
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    if (labels.length > 0) {
+      ctx.fillText(labels[0], pad.left, H - 4);
+      ctx.fillText(labels[labels.length - 1], W - pad.right, H - 4);
+    }
+
+    // Y labels
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxW), pad.left - 4, pad.top + 4);
+    ctx.fillText(Math.round(minW), pad.left - 4, H - pad.bottom);
+  }
+
+  // ── Calendar Tab ─────────────────────────────────────────────
+  function renderCalendar() {
+    const today = new Date();
+    const target = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+    const year = target.getFullYear();
+    const month = target.getMonth();
+
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('monthLabel').textContent = monthNames[month] + ' ' + year;
+
+    const days = getWorkoutDays();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    // Day labels
+    ['S','M','T','W','T','F','S'].forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-day-label';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    // Empty cells
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day empty';
+      grid.appendChild(el);
+    }
+
+    // Day cells
+    let workoutCount = 0;
+    let setCount = 0;
+    let streak = 0;
+    let currentStreak = 0;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
+      const workedOut = !!days[dateStr];
+
+      const el = document.createElement('div');
+      let cls = 'cal-day';
+      if (workedOut) { cls += ' worked-out'; workoutCount++; setCount += days[dateStr]; }
+      if (isToday) cls += ' today';
+      el.className = cls;
+      el.textContent = d;
+      grid.appendChild(el);
+
+      if (workedOut) {
+        currentStreak++;
+        streak = Math.max(streak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    }
+
+    document.getElementById('monthWorkouts').textContent = workoutCount;
+    document.getElementById('monthSets').textContent = setCount;
+    document.getElementById('monthStreak').textContent = streak;
+  }
+
+  function changeMonth(dir) {
+    currentMonthOffset += dir;
+    renderCalendar();
+  }
+
+  // ── Enter key for weight input ───────────────────────────────
+  document.getElementById('weightInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') sendWeight();
   });
-</script>
 
+  // ── Init ─────────────────────────────────────────────────────
+  renderCalendar();
+</script>
 </body>
 </html>
+```
+
+<function_calls>
+<invoke name="present_files">
+<parameter name="filepaths">["/home/claude/index.html"]
