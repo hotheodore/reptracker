@@ -1,6 +1,6 @@
 # RepTracker
 
-A wearable velocity-based training (VBT) device that tracks rep speed and count during weightlifting, and recommends optimal weight and rep targets for your next set — all delivered wirelessly to your phone via Bluetooth.
+A wearable velocity-based training (VBT) device that tracks rep speed and count during weightlifting, and recommends optimal weight and rep targets for your next set. Delivered wirelessly to your phone via Bluetooth.
 
 ---
 
